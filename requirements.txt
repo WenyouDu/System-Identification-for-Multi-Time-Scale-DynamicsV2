@@ -1,0 +1,9 @@
+torch>=2.0
+numpy>=1.24
+pandas>=1.5
+scikit-learn>=1.2
+scipy>=1.10
+joblib>=1.2
+einops>=0.6
+nonlinear_benchmarks>=0.1.0
+xlrd>=2.0

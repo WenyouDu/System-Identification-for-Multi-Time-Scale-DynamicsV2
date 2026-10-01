@@ -1,0 +1,874 @@
+{
+  "meta": {
+    "purpose": "Central hyperparameter registry for all models reported in the paper (ISA Transactions, ISATRANS-D-26-02897). Each entry records the configuration used to produce the reported numbers; source JSON is listed per method.",
+    "common": {
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "input_size": 6,
+      "output_size": 3,
+      "train_len": 8000,
+      "lambda_reg": 1e-05,
+      "max_norm": 3,
+      "early_stop_patience": 300,
+      "fs": 1000.0
+    },
+    "notes": [
+      "STEP dataset = nonlinear staircase (Step_*_Data_Nolinear.xls, saturation+deadzone).",
+      "All STEP metrics computed in min-max normalized domain, free-run (no teacher forcing).",
+      "CED = Coupled Electric Drives: fs=50 Hz, Ts=0.02 s, rmse_scaling=1.0 (ticks/s), two independent test segments (low/high input amplitude), skip the first 10 samples of each test segment (official state_initialization_window_length)."
+    ]
+  },
+  "step": {
+    "enhanced_lstm": {
+      "note": "Proposed method. Final config fixed by the alpha and forget-bias sweeps (alpha=0.85, b_f=1).",
+      "architecture": {
+        "cell": "LSTM",
+        "hidden_size": 256,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "forget_bias": 1.0
+      },
+      "training": {
+        "optimizer": "Adam",
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "lambda_reg": 1e-05,
+        "max_norm": 3,
+        "loss": "spectral",
+        "alpha": 0.85,
+        "teacher_forcing": false,
+        "full_sequence": true,
+        "train_len": 8000
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": [
+        "alpha_seeds_results_nolinear.json",
+        "forget_bias_seeds_results_nolinear.json",
+        "ablation_lstm_results_nolinear.json"
+      ]
+    },
+    "ablation": {
+      "note": "Three ablation configurations on top of the shared LSTM backbone.",
+      "shared": {
+        "hidden_size": 256,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "lambda_reg": 1e-05,
+        "max_norm": 3,
+        "train_len": 8000
+      },
+      "configs": [
+        {
+          "tag": "mse_fb0",
+          "name": "MSE + LSTM (b_f=0)",
+          "loss": "mse",
+          "forget_bias": 0.0
+        },
+        {
+          "tag": "mse_fb1",
+          "name": "MSE + LSTM (b_f=1)",
+          "loss": "mse",
+          "forget_bias": 1.0
+        },
+        {
+          "tag": "spectral_fb0",
+          "name": "Time-frequency loss + LSTM (b_f=0)",
+          "loss": "spectral",
+          "forget_bias": 0.0
+        }
+      ],
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "ablation_lstm_results_nolinear.json"
+    },
+    "alpha_sweep": {
+      "note": "Sensitivity of the spectral-loss weight alpha (Table: alpha sensitivity).",
+      "sweep": [
+        0.1,
+        0.3,
+        0.5,
+        0.7,
+        0.85,
+        0.95,
+        1.0
+      ],
+      "fixed": {
+        "hidden_size": 256,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "forget_bias": 1.0
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "alpha_seeds_results_nolinear.json"
+    },
+    "forget_bias_sweep": {
+      "note": "Sensitivity of the forget-gate bias b_f (Table: forget-bias sensitivity).",
+      "sweep": [
+        0.0,
+        0.5,
+        1.0,
+        1.5
+      ],
+      "fixed": {
+        "hidden_size": 256,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "alpha": 0.85
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "forget_bias_seeds_results_nolinear.json"
+    },
+    "rnn_baseline": {
+      "architecture": {
+        "cell": "RNN",
+        "hidden_size": 64,
+        "num_layers": 1,
+        "dropout": 0.1
+      },
+      "training": {
+        "optimizer": "Adam",
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "weight_decay": 1e-05,
+        "loss": "MSE",
+        "full_sequence": true,
+        "train_len": 8000
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "baseline_multi_results_nolinear_RNN.json"
+    },
+    "gru": {
+      "architecture": {
+        "cell": "GRU",
+        "hidden_size": 64,
+        "num_layers": 1,
+        "dropout": 0.1
+      },
+      "training": {
+        "optimizer": "Adam",
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "weight_decay": 1e-05,
+        "loss": "MSE",
+        "full_sequence": true,
+        "train_len": 8000
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "baseline_multi_results_nolinear_GRU.json"
+    },
+    "baseline_lstm": {
+      "architecture": {
+        "cell": "LSTM",
+        "hidden_size": 64,
+        "num_layers": 1,
+        "dropout": 0.1
+      },
+      "training": {
+        "optimizer": "Adam",
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "weight_decay": 1e-05,
+        "loss": "MSE",
+        "full_sequence": true,
+        "train_len": 8000
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "baseline_multi_results_nolinear_LSTM.json"
+    },
+    "sota": {
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "batch_size": 16,
+      "TCN": {
+        "kind": "tcn_full",
+        "num_channels": [
+          128,
+          128,
+          128,
+          128
+        ],
+        "kernel_size": 3,
+        "dropout": 0.1,
+        "lr": 0.0005,
+        "epochs": 800,
+        "patience": 300
+      },
+      "Transformer": {
+        "kind": "thuml",
+        "seq_len": 1024,
+        "stride": 200,
+        "d_model": 128,
+        "n_heads": 4,
+        "e_layers": 2,
+        "d_layers": 1,
+        "d_ff": 256,
+        "dropout": 0.2,
+        "lr": 0.0005,
+        "epochs": 800,
+        "patience": 300
+      },
+      "PatchTST": {
+        "kind": "patchtst",
+        "seq_len": 256,
+        "stride": 50,
+        "d_model": 128,
+        "n_heads": 4,
+        "e_layers": 2,
+        "d_ff": 256,
+        "patch_len": 16,
+        "patch_stride": 8,
+        "dropout": 0.2,
+        "lr": 0.0005,
+        "epochs": 800,
+        "patience": 300
+      },
+      "source_json": "sota_results_nolinear.json"
+    },
+    "noise_robustness": {
+      "note": "Robustness to measurement noise (Table: noise robustness). Gaussian white noise added to input+output measurements per-channel by SNR; model retrained from scratch at each SNR with 5 seeds.",
+      "snr_db_list": [
+        5.0,
+        10.0,
+        20.0,
+        30.0,
+        40.0
+      ],
+      "noise_on": "input+output",
+      "noise_seed": 12345,
+      "architecture": {
+        "cell": "LSTM",
+        "hidden_size": 256,
+        "num_layers": 2,
+        "dropout": 0.2,
+        "forget_bias": 1.0
+      },
+      "training": {
+        "optimizer": "Adam",
+        "lr": 0.005,
+        "epochs": 800,
+        "patience": 300,
+        "lambda_reg": 1e-05,
+        "max_norm": 3,
+        "loss": "spectral",
+        "alpha": 0.85,
+        "full_sequence": true,
+        "train_len": 8000
+      },
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "source_json": "noise_results_snr{5,10,20,30,40}_nolinear.json (one file per SNR)"
+    }
+  },
+  "benchmark": {
+    "enhanced_lstm": {
+      "note": "Skip-50 protocol. alpha is fixed to 0.95 in run_benchmark_multi.py; network structure follows Nonlinea_Benchmark_Predict/Option.py (MODEL_PARAMETERS), overridden per dataset.",
+      "seeds": [
+        9,
+        66,
+        108,
+        88,
+        52
+      ],
+      "loss": "spectral",
+      "datasets": {
+        "CT": {
+          "hidden_size": 64,
+          "num_layers": 2,
+          "lr": 0.001,
+          "epochs": 3000,
+          "dropout": 0.1,
+          "alpha": 0.95,
+          "rmse_scaling": 1.0
+        },
+        "WH": {
+          "hidden_size": 64,
+          "num_layers": 1,
+          "lr": 0.005,
+          "epochs": 3000,
+          "dropout": 0.1,
+          "alpha": 0.95,
+          "rmse_scaling": 1000.0
+        },
+        "SB": {
+          "hidden_size": 64,
+          "num_layers": 2,
+          "lr": 0.001,
+          "epochs": 3000,
+          "dropout": 0.1,
+          "alpha": 0.95,
+          "rmse_scaling": 1000.0
+        },
+        "CED": {
+          "hidden_size": 64,
+          "num_layers": 2,
+          "lr": 0.005,
+          "epochs": 3000,
+          "dropout": 0.1,
+          "alpha": 0.95,
+          "rmse_scaling": 1.0,
+          "fs": 50.0,
+          "skip_init": 10
+        }
+      },
+      "source_json": "training: benchmark_multi_{DS}_EnhancedLSTM.json (alpha=0.95, five seeds); reported (skip-50) values: benchmark_skipinit_{DS}_EnhancedLSTM.json"
+    },
+    "sota": {
+      "note": "All reported values are computed under the official state-initialization skip protocol (skip_init=50 on CT/SB/WH, skip_init=10 on CED), five seeds; the reported numbers come from benchmark_skipinit_{DS}_{Model}.json, while the architectural hyperparameters below come from benchmark_sota_{DS}_{Model}.json and are the training-time settings used to produce those results.",
+      "datasets": {
+        "CT": {
+          "TCN": {
+            "model_cfg": {
+              "kind": "window",
+              "num_channels": [
+                128,
+                128,
+                128,
+                128,
+                128,
+                128
+              ],
+              "kernel_size": 3,
+              "dropout": 0.1,
+              "lr": 0.0001,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 128,
+            "train_stride": 64,
+            "eval_stride": 64,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "Transformer": {
+            "model_cfg": {
+              "kind": "thuml",
+              "d_model": 128,
+              "n_heads": 4,
+              "e_layers": 2,
+              "d_layers": 1,
+              "d_ff": 256,
+              "dropout": 0.2,
+              "lr": 0.0005,
+              "epochs": 2000,
+              "patience": 500
+            },
+            "seq_len": 128,
+            "train_stride": 64,
+            "eval_stride": 64,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "PatchTST": {
+            "model_cfg": {
+              "kind": "patchtst",
+              "d_model": 128,
+              "n_heads": 4,
+              "e_layers": 2,
+              "d_ff": 256,
+              "patch_len": 16,
+              "patch_stride": 8,
+              "dropout": 0.2,
+              "lr": 0.0005,
+              "epochs": 3000,
+              "patience": 600
+            },
+            "seq_len": 128,
+            "train_stride": 64,
+            "eval_stride": 64,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          }
+        },
+        "WH": {
+          "TCN": {
+            "model_cfg": {
+              "kind": "window",
+              "num_channels": [
+                64,
+                64,
+                64,
+                64,
+                64,
+                64,
+                64,
+                64
+              ],
+              "kernel_size": 3,
+              "dropout": 0.2,
+              "lr": 0.001,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "Transformer": {
+            "model_cfg": {
+              "kind": "thuml",
+              "d_model": 64,
+              "n_heads": 4,
+              "e_layers": 1,
+              "d_layers": 1,
+              "d_ff": 512,
+              "dropout": 0.2,
+              "lr": 0.002,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "PatchTST": {
+            "model_cfg": {
+              "kind": "patchtst",
+              "d_model": 128,
+              "n_heads": 4,
+              "e_layers": 1,
+              "d_ff": 128,
+              "patch_len": 16,
+              "patch_stride": 8,
+              "dropout": 0.1,
+              "lr": 0.0005,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          }
+        },
+        "SB": {
+          "TCN": {
+            "model_cfg": {
+              "kind": "window",
+              "num_channels": [
+                64,
+                64,
+                64,
+                64,
+                64,
+                64,
+                64,
+                64
+              ],
+              "kernel_size": 3,
+              "dropout": 0.2,
+              "lr": 0.001,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "Transformer": {
+            "model_cfg": {
+              "kind": "thuml",
+              "d_model": 64,
+              "n_heads": 4,
+              "e_layers": 1,
+              "d_layers": 1,
+              "d_ff": 512,
+              "dropout": 0.2,
+              "lr": 0.0001,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          },
+          "PatchTST": {
+            "model_cfg": {
+              "kind": "patchtst",
+              "d_model": 64,
+              "n_heads": 4,
+              "e_layers": 1,
+              "d_ff": 128,
+              "patch_len": 16,
+              "patch_stride": 8,
+              "dropout": 0.1,
+              "lr": 0.0005,
+              "epochs": 3000,
+              "patience": 600
+            },
+            "seq_len": 512,
+            "train_stride": 256,
+            "eval_stride": 200,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ]
+          }
+        },
+        "CED": {
+          "TCN": {
+            "model_cfg": {
+              "kind": "window",
+              "num_channels": [
+                32,
+                32,
+                32,
+                32
+              ],
+              "kernel_size": 3,
+              "dropout": 0.2,
+              "lr": 0.001,
+              "epochs": 1000,
+              "patience": 300
+            },
+            "seq_len": 32,
+            "train_stride": 8,
+            "eval_stride": 8,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ],
+            "fs": 50.0,
+            "rmse_scaling": 1.0,
+            "skip_init": 10
+          },
+          "Transformer": {
+            "model_cfg": {
+              "kind": "thuml",
+              "d_model": 64,
+              "n_heads": 2,
+              "e_layers": 1,
+              "d_layers": 1,
+              "d_ff": 256,
+              "dropout": 0.2,
+              "lr": 0.0005,
+              "epochs": 2000,
+              "patience": 500
+            },
+            "seq_len": 32,
+            "train_stride": 8,
+            "eval_stride": 8,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ],
+            "fs": 50.0,
+            "rmse_scaling": 1.0,
+            "skip_init": 10
+          },
+          "PatchTST": {
+            "model_cfg": {
+              "kind": "patchtst",
+              "d_model": 32,
+              "n_heads": 4,
+              "e_layers": 1,
+              "d_ff": 128,
+              "patch_len": 16,
+              "patch_stride": 8,
+              "dropout": 0.1,
+              "lr": 0.1,
+              "epochs": 3000,
+              "patience": 600
+            },
+            "seq_len": 32,
+            "train_stride": 8,
+            "eval_stride": 8,
+            "batch_size": 16,
+            "seeds": [
+              9,
+              66,
+              108,
+              88,
+              52
+            ],
+            "fs": 50.0,
+            "rmse_scaling": 1.0,
+            "skip_init": 10
+          }
+        }
+      }
+    },
+    "recurrent_baselines": {
+      "note": "Recurrent baselines (LSTM/GRU/RNN) on the public benchmarks. MSE loss, no spectral term; skip-50 protocol on CT/SB/WH, skip-10 on CED. Config per model chosen as the best over the per-dataset scan (sum of scaledRMSE over the test segments).",
+      "datasets": {
+        "CED": {
+          "RNN": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "GRU": {
+            "hidden_size": 64,
+            "num_layers": 1,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "LSTM": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          }
+        },
+        "CT": {
+          "LSTM": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.2,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "GRU": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.001,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "RNN": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.001,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          }
+        },
+        "SB": {
+          "GRU": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "LSTM": {
+            "hidden_size": 64,
+            "num_layers": 2,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "RNN": {
+            "hidden_size": 64,
+            "num_layers": 1,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          }
+        },
+        "WH": {
+          "LSTM": {
+            "hidden_size": 128,
+            "num_layers": 1,
+            "lr": 0.0005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 0.1,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "RNN": {
+            "hidden_size": 128,
+            "num_layers": 1,
+            "lr": 0.0005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 0.1,
+            "loss": "mse",
+            "early_stop_patience": 500
+          },
+          "GRU": {
+            "hidden_size": 128,
+            "num_layers": 1,
+            "lr": 0.005,
+            "epochs": 3000,
+            "dropout": 0.1,
+            "lambda_reg": 1e-05,
+            "max_norm": 3,
+            "loss": "mse",
+            "early_stop_patience": 500
+          }
+        }
+      }
+    }
+  }
+}
